@@ -121,9 +121,12 @@ class Backbone(BackboneBase):
         else:
             raise NotImplementedError("Why you can get here with name {}".format(name))
         # num_channels = 512 if name in ('resnet18', 'resnet34') else 2048
-        assert name not in ('resnet18', 'resnet34'), "Only resnet50 and resnet101 are available."
+        
         assert return_interm_indices in [[0,1,2,3], [1,2,3], [3]]
-        num_channels_all = [256, 512, 1024, 2048]
+        if name in ['resnet18','resnet34']:
+            num_channels_all = [64,128,256,512]
+        else:
+            num_channels_all = [256,512,1024,2048]
         num_channels = num_channels_all[4-len(return_interm_indices):]
         super().__init__(backbone, train_backbone, num_channels, return_interm_indices)
 
@@ -164,7 +167,7 @@ def build_backbone(args):
     backbone_freeze_keywords = args.backbone_freeze_keywords
     use_checkpoint = getattr(args, 'use_checkpoint', False)
 
-    if args.backbone in ['resnet50', 'resnet101']:
+    if args.backbone in ['resnet18','resnet34','resnet50','resnet101']:
         backbone = Backbone(args.backbone, train_backbone, args.dilation,   
                                 return_interm_indices,   
                                 batch_norm=FrozenBatchNorm2d)
