@@ -11,7 +11,7 @@ lr_linear_proj_mult = 0.1
 ddetr_lr_param = False
 batch_size = 2
 weight_decay = 0.0001
-epochs = 50
+epochs = 12
 lr_drop = 40
 save_checkpoint_interval = 1
 clip_max_norm = 0.1
@@ -36,7 +36,7 @@ dec_layers = 6
 unic_layers = 0
 pre_norm = False
 dim_feedforward = 2048
-hidden_dim = 256
+hidden_dim = 192
 dropout = 0.0
 nheads = 8
 num_queries = 300
@@ -96,7 +96,7 @@ dec_pred_class_embed_share = True
 
 # for dn
 use_dn = True
-dn_number = 100
+dn_number = 50
 dn_box_noise_scale = 0.4
 dn_label_noise_ratio = 0.5
 embed_init_tgt = True
