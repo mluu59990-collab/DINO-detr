@@ -69,7 +69,7 @@ at::Tensor ms_deform_attn_cuda_forward(
                 sampling_loc.data<scalar_t>() + n * im2col_step_ * per_sample_loc_size,
                 attn_weight.data<scalar_t>() + n * im2col_step_ * per_attn_weight_size,
                 batch_n, spatial_size, num_heads, channels, num_levels, num_query, num_point,
-                columns.data<scalar_t>());
+                columns.data_ptr<scalar_t>()());
 
         }));
     }
@@ -132,7 +132,7 @@ std::vector<at::Tensor> ms_deform_attn_cuda_backward(
         auto grad_output_g = grad_output_n.select(0, n);
         AT_DISPATCH_FLOATING_TYPES(value.scalar_type(), "ms_deform_attn_backward_cuda", ([&] {
             ms_deformable_col2im_cuda(at::cuda::getCurrentCUDAStream(),
-                                    grad_output_g.data<scalar_t>(),
+                                    grad_output_g.data_ptr<scalar_t>(),
                                     value.data_ptr<scalar_t>() + n * im2col_step_ * per_value_size,
                                     spatial_shapes.data<int64_t>(),
                                     level_start_index.data<int64_t>(),
