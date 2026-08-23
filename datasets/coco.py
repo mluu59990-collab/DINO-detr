@@ -618,7 +618,7 @@ def build(image_set, args):
         ),
         "val": (
             root / "valid" / "img",
-            root / "valid" / "instances_val.json",
+            root / "valid" / "instances_valid.json",
         ),
         "test":(
             root / "test" / "img",
