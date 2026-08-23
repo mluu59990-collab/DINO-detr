@@ -613,15 +613,15 @@ def build(image_set, args):
     root = Path(args.coco_path)
     PATHS = {
         "train": (
-            root / "train" / "img",
+            root / "train" / "images",
             root / "train" / "instances_train.json",
         ),
         "val": (
-            root / "valid" / "img",
+            root / "valid" / "images",
             root / "valid" / "instances_valid.json",
         ),
         "test":(
-            root / "test" / "img",
+            root / "test" / "images",
             root / "test" / "instances_test.json"
         )
     }
