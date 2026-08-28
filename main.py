@@ -165,7 +165,8 @@ def main(args):
     
 
     dataset_train = build_dataset(image_set='train', args=args)
-    dataset_val = build_dataset(image_set='val', args=args)
+    eval_split = 'test' if args.test else 'val'
+    dataset_val = build_dataset(image_set=eval_split, args=args)
 
     if args.distributed:
         sampler_train = DistributedSampler(dataset_train)
