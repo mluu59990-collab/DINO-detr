@@ -609,20 +609,35 @@ def get_aux_target_hacks_list(image_set, args):
     return aux_target_hacks_list
 
 
+def _get_ann_file(split_folder, default_name):
+    default_ann = split_folder / default_name
+    roboflow_ann = split_folder / "_annotations.coco.json"
+    if default_ann.exists() or not roboflow_ann.exists():
+        return default_ann
+    return roboflow_ann
+
+
+def _get_img_folder(split_folder):
+    images_folder = split_folder / "images"
+    if images_folder.exists():
+        return images_folder
+    return split_folder
+
+
 def build(image_set, args):
     root = Path(args.coco_path)
     PATHS = {
         "train": (
-            root / "train" / "images",
-            root / "train" / "instances_train.json",
+            _get_img_folder(root / "train"),
+            _get_ann_file(root / "train", "instances_train.json"),
         ),
         "val": (
-            root / "valid" / "images",
-            root / "valid" / "instances_valid.json",
+            _get_img_folder(root / "valid"),
+            _get_ann_file(root / "valid", "instances_valid.json"),
         ),
         "test":(
-            root / "test" / "images",
-            root / "test" / "instances_test.json"
+            _get_img_folder(root / "test"),
+            _get_ann_file(root / "test", "instances_test.json")
         )
     }
 
