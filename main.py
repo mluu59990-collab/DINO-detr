@@ -56,6 +56,7 @@ def get_args_parser():
     parser.add_argument('--eval', action='store_true')
     parser.add_argument('--num_workers', default=4, type=int)
     parser.add_argument('--test', action='store_true')
+    parser.add_argument('--test_split_name', default='test')
     parser.add_argument('--debug', action='store_true')
     parser.add_argument('--find_unused_params', action='store_true')
 
@@ -164,7 +165,7 @@ def main(args):
                                   weight_decay=args.weight_decay)
     
 
-    eval_split = 'test' if args.test else 'val'
+    eval_split = args.test_split_name if args.test else 'val'
     dataset_train = None if args.eval else build_dataset(image_set='train', args=args)
     dataset_val = build_dataset(image_set=eval_split, args=args)
 

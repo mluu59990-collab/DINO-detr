@@ -321,11 +321,15 @@ dataset_hook_register = {
 
 
 class CocoDetection(torchvision.datasets.CocoDetection):
-    def __init__(self, img_folder, ann_file, transforms, return_masks, aux_target_hacks=None):
+    def __init__(self, img_folder, ann_file, transforms, return_masks, aux_target_hacks=None, num_classes=None):
         super(CocoDetection, self).__init__(img_folder, ann_file)
         self._transforms = transforms
         self.prepare = ConvertCocoPolysToMask(return_masks)
         self.aux_target_hacks = aux_target_hacks
+        self.category_id_to_contiguous_id = None
+        cat_ids = sorted(self.coco.getCatIds())
+        if num_classes is not None and cat_ids and len(cat_ids) <= num_classes and max(cat_ids) >= num_classes:
+            self.category_id_to_contiguous_id = {cat_id: i for i, cat_id in enumerate(cat_ids)}
 
     def change_hack_attr(self, hackclassname, attrkv_dict):
         target_class = dataset_hook_register[hackclassname]
@@ -355,6 +359,11 @@ class CocoDetection(torchvision.datasets.CocoDetection):
             idx += 1
             img, target = super(CocoDetection, self).__getitem__(idx)
         image_id = self.ids[idx]
+        if self.category_id_to_contiguous_id is not None:
+            target = [
+                {**obj, "category_id": self.category_id_to_contiguous_id[obj["category_id"]]}
+                for obj in target
+            ]
         target = {'image_id': image_id, 'annotations': target}
         img, target = self.prepare(img, target)
         
@@ -532,7 +541,7 @@ def make_coco_transforms(image_set, fix_size=False, strong_aug=False, args=None)
             normalize,
         ])
 
-    if image_set in ['val', 'eval_debug', 'train_reg', 'test']:
+    if image_set != 'train':
 
         if os.environ.get("GFLOPS_DEBUG_SHILONG", False) == 'INFO':
             print("Under debug mode for flops calculation only!!!!!!!!!!!!!!!!")
@@ -650,6 +659,12 @@ def build(image_set, args):
             _get_ann_file(root / "test", "instances_test.json")
         )
     }
+    if image_set not in PATHS:
+        split_folder = root / image_set
+        PATHS[image_set] = (
+            _get_img_folder(split_folder),
+            _get_ann_file(split_folder, f"instances_{image_set}.json"),
+        )
 
     # add some hooks to datasets
     aux_target_hacks_list = get_aux_target_hacks_list(image_set, args)
@@ -667,6 +682,7 @@ def build(image_set, args):
             transforms=make_coco_transforms(image_set, fix_size=args.fix_size, strong_aug=strong_aug, args=args), 
             return_masks=args.masks,
             aux_target_hacks=aux_target_hacks_list,
+            num_classes=getattr(args, 'num_classes', None),
         )
 
     return dataset
