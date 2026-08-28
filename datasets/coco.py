@@ -610,11 +610,21 @@ def get_aux_target_hacks_list(image_set, args):
 
 
 def _get_ann_file(split_folder, default_name):
-    default_ann = split_folder / default_name
-    roboflow_ann = split_folder / "_annotations.coco.json"
-    if default_ann.exists() or not roboflow_ann.exists():
-        return default_ann
-    return roboflow_ann
+    candidates = [
+        split_folder / default_name,
+        split_folder / "_annotations.coco.json",
+        split_folder / "_annotations.json",
+        split_folder / "annotations.json",
+    ]
+    for ann_file in candidates:
+        if ann_file.exists():
+            return ann_file
+
+    json_files = sorted(split_folder.glob("*.json"))
+    if json_files:
+        return json_files[0]
+
+    return candidates[0]
 
 
 def _get_img_folder(split_folder):
